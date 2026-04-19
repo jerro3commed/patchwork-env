@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.vscode/
+env/
+.pytest_cache/
+*.swp
+*.egg
+.venv/
+.env
+.cache/
