@@ -63,3 +63,9 @@ def test_strip_quotes_no_quotes():
 def test_serialize_quotes_spaces():
     content = serialize_env({"MSG": "hello world"})
     assert '"hello world"' in content
+
+
+def test_parse_missing_file_raises():
+    """parse_env_file should raise FileNotFoundError for a non-existent path."""
+    with pytest.raises(FileNotFoundError):
+        parse_env_file("/tmp/this_file_does_not_exist_patchwork.env")
