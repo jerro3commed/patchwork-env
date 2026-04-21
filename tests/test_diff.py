@@ -51,3 +51,29 @@ def test_summary_with_diff():
     assert "+ D" in summary
     assert "- C" in summary
     assert "~ B" in summary
+
+
+def test_empty_envs():
+    """Diffing two empty dicts should produce no changes and no diff."""
+    d = diff_envs({}, {})
+    assert d.added == {}
+    assert d.removed == {}
+    assert d.changed == {}
+    assert d.unchanged == {}
+    assert d.has_diff is False
+
+
+def test_source_empty():
+    """All keys in target should appear as added when source is empty."""
+    d = diff_envs({}, {"X": "1", "Y": "2"})
+    assert d.added == {"X": "1", "Y": "2"}
+    assert d.removed == {}
+    assert d.changed == {}
+
+
+def test_target_empty():
+    """All keys in source should appear as removed when target is empty."""
+    d = diff_envs({"X": "1", "Y": "2"}, {})
+    assert d.removed == {"X": "1", "Y": "2"}
+    assert d.added == {}
+    assert d.changed == {}
