@@ -84,3 +84,19 @@ def test_empty_env_returns_empty_string():
 def test_unsupported_format_raises():
     with pytest.raises(ValueError, match="Unsupported export format"):
         export_env({"A": "1"}, fmt="yaml")  # type: ignore[arg-type]
+
+
+def test_dotenv_all_sample_keys_present():
+    """All keys from SAMPLE should appear in dotenv output."""
+    out = export_env(SAMPLE, fmt="dotenv")
+    for key in SAMPLE:
+        assert key in out, f"Expected key {key!r} to be present in dotenv output"
+
+
+def test_shell_all_sample_keys_present():
+    """All keys from SAMPLE should appear as export statements in shell output."""
+    out = export_env(SAMPLE, fmt="shell")
+    for key in SAMPLE:
+        assert f"export {key}=" in out, (
+            f"Expected 'export {key}=' to be present in shell output"
+        )
