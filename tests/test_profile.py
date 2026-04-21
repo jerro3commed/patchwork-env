@@ -61,6 +61,16 @@ def test_registry_remove_missing_returns_false():
     assert reg.remove("ghost") is False
 
 
+def test_registry_add_duplicate_overwrites():
+    """Adding a profile with an existing name should overwrite the old entry."""
+    reg = ProfileRegistry()
+    reg.add(Profile(name="dev", path=".env.dev", description="original"))
+    reg.add(Profile(name="dev", path=".env.dev.new", description="updated"))
+    assert len(reg.list_names()) == 1
+    assert reg.get("dev").description == "updated"
+    assert reg.get("dev").path == ".env.dev.new"
+
+
 def test_save_and_load_roundtrip(tmp_profile_file):
     reg = ProfileRegistry()
     reg.add(Profile(name="dev", path=".env.dev", description="Dev env", tags=["local"]))
