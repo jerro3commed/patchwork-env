@@ -8,10 +8,16 @@ KV_RE = re.compile(r"^\s*([\w.\-]+)\s*=\s*(.*)\s*$")
 
 
 def parse_env_file(path: str) -> Dict[str, str]:
-    """Parse a .env file and return a dict of key-value pairs."""
+    """Parse a .env file and return a dict of key-value pairs.
+
+    Raises:
+        FileNotFoundError: If the file at ``path`` does not exist.
+        ValueError: If a non-blank, non-comment line cannot be parsed as a
+            key=value pair.
+    """
     env: Dict[str, str] = {}
     with open(path, "r", encoding="utf-8") as f:
-        for line in f:
+        for lineno, line in enumerate(f, start=1):
             line = line.rstrip("\n")
             if COMMENT_RE.match(line) or BLANK_RE.match(line):
                 continue
@@ -20,6 +26,10 @@ def parse_env_file(path: str) -> Dict[str, str]:
                 key, value = m.group(1), m.group(2)
                 value = _strip_quotes(value)
                 env[key] = value
+            else:
+                raise ValueError(
+                    f"{path}:{lineno}: invalid syntax: {line!r}"
+                )
     return env
 
 
