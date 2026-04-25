@@ -42,6 +42,8 @@ def add_profile(ctx, name: str, path: str, description: str, tag) -> None:
     if reg.get(name):
         click.echo(f"Profile '{name}' already exists. Use 'remove' first.", err=True)
         sys.exit(1)
+    if not Path(path).exists():
+        click.echo(f"Warning: path '{path}' does not exist.", err=True)
     reg.add(Profile(name=name, path=path, description=description, tags=list(tag)))
     save_profiles(reg, pf)
     click.echo(f"Added profile '{name}' -> {path}")
