@@ -69,3 +69,15 @@ def test_parse_missing_file_raises():
     """parse_env_file should raise FileNotFoundError for a non-existent path."""
     with pytest.raises(FileNotFoundError):
         parse_env_file("/tmp/this_file_does_not_exist_patchwork.env")
+
+
+def test_parse_value_with_equals_sign():
+    """Values containing '=' should be parsed correctly (only first '=' is the delimiter)."""
+    path = write_tmp("""
+        URL=http://example.com?foo=bar
+        TOKEN=abc=def==
+    """)
+    env = parse_env_file(path)
+    assert env["URL"] == "http://example.com?foo=bar"
+    assert env["TOKEN"] == "abc=def=="
+    os.unlink(path)
