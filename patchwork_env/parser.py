@@ -42,11 +42,20 @@ def _strip_quotes(value: str) -> str:
     return value
 
 
+def _needs_quoting(value: str) -> bool:
+    """Return True if the value should be quoted when serializing.
+
+    A value needs quoting if it contains spaces, hash characters, single
+    quotes, or double quotes that could be misinterpreted on re-parse.
+    """
+    return any(c in value for c in (" ", "#", "'", '"'))
+
+
 def serialize_env(env: Dict[str, str]) -> str:
     """Serialize a dict of key-value pairs to .env file content."""
     lines = []
     for key, value in sorted(env.items()):
-        if any(c in value for c in (" ", "#", "'")):
+        if _needs_quoting(value):
             value = f'"{value}"'
         lines.append(f"{key}={value}")
     return "\n".join(lines) + "\n"
