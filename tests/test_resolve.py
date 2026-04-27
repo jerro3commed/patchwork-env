@@ -72,3 +72,10 @@ def test_resolve_total_keys(write_env):
     p = write_env("c.env", "A=1\nB=2\nC=3\n")
     result = resolve_env([p])
     assert result.total_keys == 3
+
+
+def test_resolve_missing_file_raises(tmp_path):
+    """Ensure resolve_env raises an error when a given path does not exist."""
+    missing = tmp_path / "does_not_exist.env"
+    with pytest.raises((FileNotFoundError, OSError)):
+        resolve_env([missing])
