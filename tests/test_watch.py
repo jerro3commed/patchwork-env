@@ -19,6 +19,22 @@ def env_file(tmp_path: Path) -> Path:
     return p
 
 
+@pytest.fixture
+def make_diff():
+    """Factory fixture for creating EnvDiff instances in tests."""
+    from patchwork_env.diff import EnvDiff
+
+    def _make(added=None, removed=None, changed=None, unchanged=None):
+        return EnvDiff(
+            added=added or {},
+            removed=removed or {},
+            changed=changed or {},
+            unchanged=unchanged or {},
+        )
+
+    return _make
+
+
 def test_load_state_reads_env(env_file: Path) -> None:
     state = _load_state(env_file)
     assert state.path == env_file
@@ -26,30 +42,26 @@ def test_load_state_reads_env(env_file: Path) -> None:
     assert state.last_mtime == env_file.stat().st_mtime
 
 
-def test_change_event_summary_added() -> None:
-    from patchwork_env.diff import EnvDiff
-    diff = EnvDiff(added={"NEW": "val"}, removed={}, changed={}, unchanged={})
+def test_change_event_summary_added(make_diff) -> None:
+    diff = make_diff(added={"NEW": "val"})
     event = ChangeEvent(path=Path(".env"), diff=diff, timestamp=0.0)
     assert "+1 added" in event.summary
 
 
-def test_change_event_summary_removed() -> None:
-    from patchwork_env.diff import EnvDiff
-    diff = EnvDiff(added={}, removed={"OLD": "val"}, changed={}, unchanged={})
+def test_change_event_summary_removed(make_diff) -> None:
+    diff = make_diff(removed={"OLD": "val"})
     event = ChangeEvent(path=Path(".env"), diff=diff, timestamp=0.0)
     assert "-1 removed" in event.summary
 
 
-def test_change_event_summary_changed() -> None:
-    from patchwork_env.diff import EnvDiff
-    diff = EnvDiff(added={}, removed={}, changed={"X": ("a", "b")}, unchanged={})
+def test_change_event_summary_changed(make_diff) -> None:
+    diff = make_diff(changed={"X": ("a", "b")})
     event = ChangeEvent(path=Path(".env"), diff=diff, timestamp=0.0)
     assert "~1 changed" in event.summary
 
 
-def test_change_event_summary_no_changes() -> None:
-    from patchwork_env.diff import EnvDiff
-    diff = EnvDiff(added={}, removed={}, changed={}, unchanged={"A": "1"})
+def test_change_event_summary_no_changes(make_diff) -> None:
+    diff = make_diff(unchanged={"A": "1"})
     event = ChangeEvent(path=Path(".env"), diff=diff, timestamp=0.0)
     assert "no changes" in event.summary
 
